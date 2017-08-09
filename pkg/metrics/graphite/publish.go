@@ -1,4 +1,4 @@
-package metrics
+package graphite
 
 import (
 	"bytes"
@@ -18,14 +18,8 @@ import (
 var metricsLogger log.Logger = log.New("metrics")
 var metricPublishCounter int64 = 0
 
-func Init() {
-	settings := readSettings()
-	initMetricVars(settings)
-	go instrumentationLoop(settings)
-}
-
-func instrumentationLoop(settings *MetricSettings) chan struct{} {
-	M_Instance_Start.Inc(1)
+func instrumentationLoop(settings *GraphiteSettings) chan struct{} {
+	//M_Instance_Start.Inc(1)
 
 	onceEveryDayTick := time.NewTicker(time.Hour * 24)
 	secondTicker := time.NewTicker(time.Second * time.Duration(settings.IntervalSeconds))
@@ -42,7 +36,7 @@ func instrumentationLoop(settings *MetricSettings) chan struct{} {
 	}
 }
 
-func sendMetrics(settings *MetricSettings) {
+func sendMetrics(settings *GraphiteSettings) {
 	if len(settings.Publishers) == 0 {
 		return
 	}

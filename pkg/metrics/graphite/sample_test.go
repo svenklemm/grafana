@@ -2,7 +2,7 @@
 // https://raw.githubusercontent.com/rcrowley/go-metrics/master/sample.go
 // Copyright 2012 Richard Crowley. All rights reserved.
 
-package metrics
+package graphite
 
 import (
 	"math/rand"

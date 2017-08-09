@@ -1,35 +1,39 @@
-package metrics
+package graphite
 
-import "sync"
+import (
+	"sync"
+
+	"github.com/grafana/grafana/pkg/metrics"
+)
 
 type Registry interface {
-	GetSnapshots() []Metric
-	Register(metric Metric)
+	GetSnapshots() []metrics.Metric
+	Register(metric metrics.Metric)
 }
 
 // The standard implementation of a Registry is a mutex-protected map
 // of names to metrics.
 type StandardRegistry struct {
-	metrics []Metric
+	metrics []metrics.Metric
 	mutex   sync.Mutex
 }
 
 // Create a new registry.
 func NewRegistry() Registry {
 	return &StandardRegistry{
-		metrics: make([]Metric, 0),
+		metrics: make([]metrics.Metric, 0),
 	}
 }
 
-func (r *StandardRegistry) Register(metric Metric) {
+func (r *StandardRegistry) Register(metric metrics.Metric) {
 	r.mutex.Lock()
 	defer r.mutex.Unlock()
 	r.metrics = append(r.metrics, metric)
 }
 
 // Call the given function for each registered metric.
-func (r *StandardRegistry) GetSnapshots() []Metric {
-	metrics := make([]Metric, len(r.metrics))
+func (r *StandardRegistry) GetSnapshots() []metrics.Metric {
+	metrics := make([]metrics.Metric, len(r.metrics))
 	for i, metric := range r.metrics {
 		metrics[i] = metric.Snapshot()
 	}

@@ -2,11 +2,13 @@
 // https://raw.githubusercontent.com/rcrowley/go-metrics/master/sample.go
 // Copyright 2012 Richard Crowley. All rights reserved.
 
-package metrics
+package graphite
+
+import "github.com/grafana/grafana/pkg/metrics"
 
 // Histograms calculate distribution statistics from a series of int64 values.
 type Histogram interface {
-	Metric
+	metrics.Metric
 
 	Clear()
 	Count() int64
@@ -21,7 +23,7 @@ type Histogram interface {
 	Variance() float64
 }
 
-func NewHistogram(meta *MetricMeta, s Sample) Histogram {
+func NewHistogram(meta *metrics.MetricMeta, s Sample) Histogram {
 	return &StandardHistogram{
 		MetricMeta: meta,
 		sample:     s,
@@ -30,7 +32,7 @@ func NewHistogram(meta *MetricMeta, s Sample) Histogram {
 
 // HistogramSnapshot is a read-only copy of another Histogram.
 type HistogramSnapshot struct {
-	*MetricMeta
+	*metrics.MetricMeta
 	sample *SampleSnapshot
 }
 
@@ -71,7 +73,7 @@ func (h *HistogramSnapshot) Percentiles(ps []float64) []float64 {
 func (h *HistogramSnapshot) Sample() Sample { return h.sample }
 
 // Snapshot returns the snapshot.
-func (h *HistogramSnapshot) Snapshot() Metric { return h }
+func (h *HistogramSnapshot) Snapshot() metrics.Metric { return h }
 
 // StdDev returns the standard deviation of the values in the sample at the
 // time the snapshot was taken.
@@ -90,7 +92,7 @@ func (h *HistogramSnapshot) Variance() float64 { return h.sample.Variance() }
 
 // NilHistogram is a no-op Histogram.
 type NilHistogram struct {
-	*MetricMeta
+	*metrics.MetricMeta
 }
 
 // Clear is a no-op.
@@ -120,7 +122,7 @@ func (NilHistogram) Percentiles(ps []float64) []float64 {
 func (NilHistogram) Sample() Sample { return NilSample{} }
 
 // Snapshot is a no-op.
-func (n NilHistogram) Snapshot() Metric { return n }
+func (n NilHistogram) Snapshot() metrics.Metric { return n }
 
 // StdDev is a no-op.
 func (NilHistogram) StdDev() float64 { return 0.0 }
@@ -137,7 +139,7 @@ func (NilHistogram) Variance() float64 { return 0.0 }
 // StandardHistogram is the standard implementation of a Histogram and uses a
 // Sample to bound its memory use.
 type StandardHistogram struct {
-	*MetricMeta
+	*metrics.MetricMeta
 	sample Sample
 }
 
@@ -172,7 +174,7 @@ func (h *StandardHistogram) Percentiles(ps []float64) []float64 {
 func (h *StandardHistogram) Sample() Sample { return h.sample }
 
 // Snapshot returns a read-only copy of the histogram.
-func (h *StandardHistogram) Snapshot() Metric {
+func (h *StandardHistogram) Snapshot() metrics.Metric {
 	return &HistogramSnapshot{sample: h.sample.Snapshot().(*SampleSnapshot)}
 }
 

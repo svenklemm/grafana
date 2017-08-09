@@ -2,17 +2,19 @@
 // https://raw.githubusercontent.com/rcrowley/go-metrics/master/sample.go
 // Copyright 2012 Richard Crowley. All rights reserved.
 
-package metrics
+package graphite
 
 import (
 	"sync"
 	"time"
+
+	"github.com/grafana/grafana/pkg/metrics"
 )
 
 // Meters count events to produce exponentially-weighted moving average rates
 // at one-, five-, and fifteen-minutes and a mean rate.
 type Meter interface {
-	Metric
+	metrics.Metric
 
 	Count() int64
 	Mark(int64)
@@ -23,7 +25,7 @@ type Meter interface {
 }
 
 // NewMeter constructs a new StandardMeter and launches a goroutine.
-func NewMeter(meta *MetricMeta) Meter {
+func NewMeter(meta *metrics.MetricMeta) Meter {
 	if UseNilMetrics {
 		return NilMeter{}
 	}
@@ -40,7 +42,7 @@ func NewMeter(meta *MetricMeta) Meter {
 }
 
 type MeterSnapshot struct {
-	*MetricMeta
+	*metrics.MetricMeta
 	count                          int64
 	rate1, rate5, rate15, rateMean float64
 }
@@ -70,10 +72,10 @@ func (m *MeterSnapshot) Rate15() float64 { return m.rate15 }
 func (m *MeterSnapshot) RateMean() float64 { return m.rateMean }
 
 // Snapshot returns the snapshot.
-func (m *MeterSnapshot) Snapshot() Metric { return m }
+func (m *MeterSnapshot) Snapshot() metrics.Metric { return m }
 
 // NilMeter is a no-op Meter.
-type NilMeter struct{ *MetricMeta }
+type NilMeter struct{ *metrics.MetricMeta }
 
 // Count is a no-op.
 func (NilMeter) Count() int64 { return 0 }
@@ -94,18 +96,18 @@ func (NilMeter) Rate15() float64 { return 0.0 }
 func (NilMeter) RateMean() float64 { return 0.0 }
 
 // Snapshot is a no-op.
-func (NilMeter) Snapshot() Metric { return NilMeter{} }
+func (NilMeter) Snapshot() metrics.Metric { return NilMeter{} }
 
 // StandardMeter is the standard implementation of a Meter.
 type StandardMeter struct {
-	*MetricMeta
+	*metrics.MetricMeta
 	lock        sync.RWMutex
 	snapshot    *MeterSnapshot
 	a1, a5, a15 EWMA
 	startTime   time.Time
 }
 
-func newStandardMeter(meta *MetricMeta) *StandardMeter {
+func newStandardMeter(meta *metrics.MetricMeta) *StandardMeter {
 	return &StandardMeter{
 		MetricMeta: meta,
 		snapshot:   &MeterSnapshot{MetricMeta: meta},
@@ -168,7 +170,7 @@ func (m *StandardMeter) RateMean() float64 {
 }
 
 // Snapshot returns a read-only copy of the meter.
-func (m *StandardMeter) Snapshot() Metric {
+func (m *StandardMeter) Snapshot() metrics.Metric {
 	m.lock.RLock()
 	snapshot := *m.snapshot
 	m.lock.RUnlock()

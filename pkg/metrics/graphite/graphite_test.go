@@ -1,4 +1,4 @@
-package metrics
+package graphite
 
 import (
 	"testing"
@@ -15,7 +15,7 @@ func TestGraphitePublisher(t *testing.T) {
 	Convey("Test graphite prefix replacement", t, func() {
 		var err error
 		err = setting.NewConfigContext(&setting.CommandLineArgs{
-			HomePath: "../../",
+			HomePath: "../../../",
 		})
 
 		So(err, ShouldBeNil)
@@ -39,7 +39,7 @@ func TestGraphitePublisher(t *testing.T) {
 	Convey("Test graphite publisher default prefix", t, func() {
 		var err error
 		err = setting.NewConfigContext(&setting.CommandLineArgs{
-			HomePath: "../../",
+			HomePath: "../../../",
 		})
 
 		So(err, ShouldBeNil)
@@ -62,7 +62,7 @@ func TestGraphitePublisher(t *testing.T) {
 	Convey("Test graphite publisher default values", t, func() {
 		var err error
 		err = setting.NewConfigContext(&setting.CommandLineArgs{
-			HomePath: "../../",
+			HomePath: "../../../",
 		})
 
 		So(err, ShouldBeNil)

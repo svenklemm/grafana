@@ -10,6 +10,8 @@ import (
 	"github.com/grafana/grafana/pkg/log"
 	"github.com/grafana/grafana/pkg/login"
 	"github.com/grafana/grafana/pkg/metrics"
+	"github.com/grafana/grafana/pkg/metrics/graphite"
+	promMetric "github.com/grafana/grafana/pkg/metrics/prometheus"
 	"github.com/grafana/grafana/pkg/models"
 	"github.com/grafana/grafana/pkg/plugins"
 	"github.com/grafana/grafana/pkg/services/alerting"
@@ -48,7 +50,10 @@ func (g *GrafanaServerImpl) Start() {
 	writePIDFile()
 	initRuntime()
 	initSql()
-	metrics.Init()
+	mc := metrics.MetricClients{}
+	graphite.Init(graphite.NewGraphiteSettings(setting.Cfg), mc)
+	promMetric.Init(promMetric.NewPrometheusMetricSettings(setting.Cfg), mc)
+	metrics.Init(&metrics.MetricSettings{}, mc)
 	search.Init()
 	login.Init()
 	social.NewOAuthService()

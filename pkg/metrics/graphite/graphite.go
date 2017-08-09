@@ -1,4 +1,4 @@
-package metrics
+package graphite
 
 import (
 	"bytes"
@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/grafana/grafana/pkg/log"
+	"github.com/grafana/grafana/pkg/metrics"
 	"github.com/grafana/grafana/pkg/setting"
 )
 
@@ -46,7 +47,7 @@ func CreateGraphitePublisher() (*GraphitePublisher, error) {
 	return publisher, nil
 }
 
-func (this *GraphitePublisher) Publish(metrics []Metric) {
+func (this *GraphitePublisher) Publish(metrics []metrics.Metric) {
 	conn, err := net.DialTimeout(this.protocol, this.address, time.Second*5)
 
 	if err != nil {
@@ -59,7 +60,6 @@ func (this *GraphitePublisher) Publish(metrics []Metric) {
 
 	for _, m := range metrics {
 		metricName := this.prefix + m.Name() + m.StringifyTags()
-
 		switch metric := m.(type) {
 		case Counter:
 			this.addCount(buf, metricName+".count", metric.Count(), now)
