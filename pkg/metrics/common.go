@@ -3,8 +3,16 @@ package metrics
 import "github.com/grafana/grafana/pkg/log"
 
 type MetricMeta struct {
-	tags map[string]string
-	name string
+	tags        map[string]string
+	name        string
+	description string
+}
+
+type Metric interface {
+	Name() string
+	GetTagsCopy() map[string]string
+	StringifyTags() string
+	Snapshot() Metric
 }
 
 func NewMetricMeta(name string, tagStrings []string) *MetricMeta {
@@ -25,6 +33,14 @@ func NewMetricMeta(name string, tagStrings []string) *MetricMeta {
 
 func (m *MetricMeta) Name() string {
 	return m.name
+}
+
+func (m *MetricMeta) Description() string {
+	if m.description == "" {
+		return m.name
+	}
+
+	return m.description
 }
 
 func (m *MetricMeta) GetTagsCopy() map[string]string {
@@ -51,11 +67,4 @@ func (m *MetricMeta) StringifyTags() string {
 	}
 
 	return str
-}
-
-type Metric interface {
-	Name() string
-	GetTagsCopy() map[string]string
-	StringifyTags() string
-	Snapshot() Metric
 }

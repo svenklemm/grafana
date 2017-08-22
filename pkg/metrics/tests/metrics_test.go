@@ -12,33 +12,34 @@ import (
 )
 
 func TestMetricCounters(t *testing.T) {
-	Convey("Can use two metrics frameworks", t, func() {
+	Convey("metrics package", t, func() {
 		mc := metrics.MetricClients{}
 
-		graphite.Init(&graphite.GraphiteSettings{
-			IntervalSeconds: 10,
-		}, mc)
-		p.Init(&p.PrometheusMetricSettings{
-			Enabled: true,
-		}, mc)
-		metrics.Init(&metrics.MetricSettings{}, mc)
+		Convey("Can use two metrics frameworks", func() {
 
-		So(len(mc), ShouldEqual, 2)
-	})
+			graphite.Init(&graphite.GraphiteSettings{
+				IntervalSeconds: 10,
+			}, mc)
+			p.Init(&p.PrometheusMetricSettings{
+				Enabled: true,
+			}, mc)
 
-	Convey("with all libraries disabled", t, func() {
-		mc := metrics.MetricClients{}
+			metrics.Init(&metrics.MetricSettings{}, mc)
+			So(len(mc), ShouldEqual, 2)
+		})
 
-		metrics.Init(&metrics.MetricSettings{}, mc)
+		Convey("no configured clients show not cause panic", func() {
+			metrics.Init(&metrics.MetricSettings{}, mc)
 
-		So(len(mc), ShouldEqual, 0)
+			So(len(mc), ShouldEqual, 0)
 
-		counter := mc.RegCounter("test counter", "tag", "value")
-		counter.Inc(1)
-		timer := mc.RegTimer("test timer", "tag", "value")
-		duration, _ := time.ParseDuration("1m")
-		timer.Update(duration)
-		gauge := mc.RegGauge("test gauge", "tag", "value")
-		gauge.Update(1)
+			counter := mc.RegCounter("test counter", "tag", "value")
+			counter.Inc(1)
+			timer := mc.RegTimer("test timer", "tag", "value")
+			duration, _ := time.ParseDuration("1m")
+			timer.Update(duration)
+			gauge := mc.RegGauge("test gauge", "tag", "value")
+			gauge.Update(1)
+		})
 	})
 }

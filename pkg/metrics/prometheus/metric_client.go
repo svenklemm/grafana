@@ -46,11 +46,11 @@ type promTimer struct {
 }
 
 func (pt *promTimer) Update(v time.Duration) {
-	pt.summary.Observe(float64(v.Seconds()))
+	pt.summary.Observe(v.Seconds())
 }
 
 func (pt *promTimer) UpdateSince(v time.Time) {
-	pt.summary.Observe(float64(time.Since(v).Seconds()))
+	pt.summary.Observe(time.Since(v).Seconds())
 }
 
 func (pt *promTimer) Snapshot() metrics.Metric {
@@ -60,7 +60,7 @@ func (pt *promTimer) Snapshot() metrics.Metric {
 func (gc *PrometheusClient) RegCounter(meta *metrics.MetricMeta) metrics.Counter {
 	cv := prometheus.NewCounter(prometheus.CounterOpts{
 		Name:        promifyName(meta.Name()) + "_total",
-		Help:        meta.Name(),
+		Help:        meta.Description(),
 		ConstLabels: prometheus.Labels(meta.GetTagsCopy()),
 	})
 
@@ -74,7 +74,7 @@ func (gc *PrometheusClient) RegCounter(meta *metrics.MetricMeta) metrics.Counter
 func (gc *PrometheusClient) RegGauge(meta *metrics.MetricMeta) metrics.Gauge {
 	gauge := prometheus.NewGauge(prometheus.GaugeOpts{
 		Name:        promifyName(meta.Name()),
-		Help:        meta.Name(),
+		Help:        meta.Description(),
 		ConstLabels: prometheus.Labels(meta.GetTagsCopy()),
 	})
 
@@ -87,8 +87,8 @@ func (gc *PrometheusClient) RegGauge(meta *metrics.MetricMeta) metrics.Gauge {
 
 func (gc *PrometheusClient) RegTimer(meta *metrics.MetricMeta) metrics.Timer {
 	timer := prometheus.NewSummary(prometheus.SummaryOpts{
-		Name:        promifyName(meta.Name()),
-		Help:        meta.Name(),
+		Name:        promifyName(meta.Name()) + "_seconds",
+		Help:        meta.Description(),
 		ConstLabels: prometheus.Labels(meta.GetTagsCopy()),
 	})
 
