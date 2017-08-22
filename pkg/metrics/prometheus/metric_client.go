@@ -28,7 +28,7 @@ func (pc *promCounter) Snapshot() metrics.Metric {
 type promGauge struct {
 	*metrics.MetricMeta
 
-	gauge prometheus.GaugeVec
+	gauge prometheus.Gauge
 }
 
 func (pg *promGauge) Snapshot() metrics.Metric {
@@ -36,21 +36,21 @@ func (pg *promGauge) Snapshot() metrics.Metric {
 }
 
 func (pg *promGauge) Update(v int64) {
-
+	pg.gauge.Set(float64(v))
 }
 
 type promTimer struct {
 	*metrics.MetricMeta
 
-	timer prometheus.Timer
+	summary prometheus.Summary
 }
 
 func (pt *promTimer) Update(v time.Duration) {
-
+	pt.summary.Observe(float64(v.Seconds()))
 }
 
 func (pt *promTimer) UpdateSince(v time.Time) {
-
+	pt.summary.Observe(float64(time.Since(v).Seconds()))
 }
 
 func (pt *promTimer) Snapshot() metrics.Metric {
@@ -59,7 +59,7 @@ func (pt *promTimer) Snapshot() metrics.Metric {
 
 func (gc *PrometheusClient) RegCounter(meta *metrics.MetricMeta) metrics.Counter {
 	cv := prometheus.NewCounter(prometheus.CounterOpts{
-		Name:        prometheusIfyName(meta.Name()) + "_total",
+		Name:        promifyName(meta.Name()) + "_total",
 		Help:        meta.Name(),
 		ConstLabels: prometheus.Labels(meta.GetTagsCopy()),
 	})
@@ -72,13 +72,33 @@ func (gc *PrometheusClient) RegCounter(meta *metrics.MetricMeta) metrics.Counter
 }
 
 func (gc *PrometheusClient) RegGauge(meta *metrics.MetricMeta) metrics.Gauge {
-	return &promGauge{}
+	gauge := prometheus.NewGauge(prometheus.GaugeOpts{
+		Name:        promifyName(meta.Name()),
+		Help:        meta.Name(),
+		ConstLabels: prometheus.Labels(meta.GetTagsCopy()),
+	})
+
+	prometheus.MustRegister(gauge)
+
+	return &promGauge{
+		gauge: gauge,
+	}
 }
 
 func (gc *PrometheusClient) RegTimer(meta *metrics.MetricMeta) metrics.Timer {
-	return &promTimer{}
+	timer := prometheus.NewSummary(prometheus.SummaryOpts{
+		Name:        promifyName(meta.Name()),
+		Help:        meta.Name(),
+		ConstLabels: prometheus.Labels(meta.GetTagsCopy()),
+	})
+
+	prometheus.MustRegister(timer)
+
+	return &promTimer{
+		summary: timer,
+	}
 }
 
-func prometheusIfyName(name string) string {
+func promifyName(name string) string {
 	return strings.Replace(name, ".", "_", -1)
 }
