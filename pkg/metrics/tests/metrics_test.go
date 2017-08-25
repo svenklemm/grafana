@@ -13,7 +13,7 @@ import (
 
 func TestMetricCounters(t *testing.T) {
 	Convey("metrics package", t, func() {
-		mc := metrics.MetricClients{}
+		mc := metrics.MetricFactories{}
 
 		Convey("Can use two metrics frameworks", func() {
 

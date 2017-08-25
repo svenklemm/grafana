@@ -1,20 +1,14 @@
 package metrics
 
-import "github.com/grafana/grafana/pkg/log"
-
-type MetricPublisher interface {
-	Publish(metrics []Metric)
-}
-
-type MetricClient interface {
+type MetricFactory interface {
 	RegCounter(*MetricMeta) Counter
 	RegTimer(*MetricMeta) Timer
 	RegGauge(*MetricMeta) Gauge
 }
 
-type MetricClients map[string]MetricClient
+type MetricFactories map[string]MetricFactory
 
-func (mc MetricClients) RegCounter(name string, tagStrings ...string) Counter {
+func (mc MetricFactories) RegCounter(name string, tagStrings ...string) Counter {
 	mm := NewMetricMeta(name, tagStrings)
 	counters := []Counter{}
 
@@ -27,7 +21,7 @@ func (mc MetricClients) RegCounter(name string, tagStrings ...string) Counter {
 	}
 }
 
-func (mc MetricClients) RegTimer(name string, tagStrings ...string) Timer {
+func (mc MetricFactories) RegTimer(name string, tagStrings ...string) Timer {
 	mm := NewMetricMeta(name, tagStrings)
 	timers := []Timer{}
 
@@ -40,7 +34,7 @@ func (mc MetricClients) RegTimer(name string, tagStrings ...string) Timer {
 	}
 }
 
-func (mc MetricClients) RegGauge(name string, tagStrings ...string) Gauge {
+func (mc MetricFactories) RegGauge(name string, tagStrings ...string) Gauge {
 	mm := NewMetricMeta(name, tagStrings)
 	gauges := []Gauge{}
 
@@ -56,8 +50,4 @@ func (mc MetricClients) RegGauge(name string, tagStrings ...string) Gauge {
 type MetricSettings struct {
 	Enabled         bool
 	IntervalSeconds int64
-
-	Publishers []MetricPublisher
 }
-
-var metricsLogger log.Logger = log.New("metrics")

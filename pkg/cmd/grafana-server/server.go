@@ -50,9 +50,9 @@ func (g *GrafanaServerImpl) Start() {
 	writePIDFile()
 	initRuntime()
 	initSql()
-	mc := metrics.MetricClients{}
+	mc := metrics.MetricFactories{}
 	graphite.Init(graphite.NewGraphiteSettings(setting.Cfg), mc)
-	promMetric.Init(promMetric.NewPrometheusMetricSettings(setting.Cfg), mc)
+	promMetric.Init(mc)
 	metrics.Init(&metrics.MetricSettings{}, mc)
 	search.Init()
 	login.Init()

@@ -63,7 +63,7 @@ var (
 
 var UseNilMetrics bool
 
-func Init(settings *MetricSettings, clients MetricClients) {
+func Init(settings *MetricSettings, clients MetricFactories) {
 	UseNilMetrics = settings.Enabled == false
 
 	M_Instance_Start = clients.RegCounter("instance_start")

@@ -42,7 +42,7 @@ func NewGraphiteSettings(settingsFile *ini.File) *GraphiteSettings {
 	return settings
 }
 
-func Init(settings *GraphiteSettings, metricClients metrics.MetricClients) {
+func Init(settings *GraphiteSettings, metricClients metrics.MetricFactories) {
 	metricsLogger.Info("setting up metrics using graphite")
 
 	//settings := readSettings(settingsFile)

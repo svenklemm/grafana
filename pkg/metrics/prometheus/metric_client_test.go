@@ -10,7 +10,7 @@ import (
 func TestMetricCounters(t *testing.T) {
 
 	Convey("Can create prometheus counter", t, func() {
-		mc := metrics.MetricClients{}
+		mc := metrics.MetricFactories{}
 		Init(&PrometheusMetricSettings{}, mc)
 
 		counter := mc.RegCounter("test_counter", "tag1", "value1")
