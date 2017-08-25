@@ -51,9 +51,10 @@ func (g *GrafanaServerImpl) Start() {
 	initRuntime()
 	initSql()
 	mc := metrics.MetricFactories{}
+	metricsCfg := metrics.ParseMetricSettings(setting.Cfg)
 	graphite.Init(graphite.NewGraphiteSettings(setting.Cfg), mc)
 	promMetric.Init(mc)
-	metrics.Init(&metrics.MetricSettings{}, mc)
+	metrics.Init(metricsCfg, mc)
 	search.Init()
 	login.Init()
 	social.NewOAuthService()

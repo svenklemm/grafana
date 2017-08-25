@@ -1,5 +1,7 @@
 package metrics
 
+import ini "gopkg.in/ini.v1"
+
 type MetricFactory interface {
 	RegCounter(*MetricMeta) Counter
 	RegTimer(*MetricMeta) Timer
@@ -50,4 +52,22 @@ func (mc MetricFactories) RegGauge(name string, tagStrings ...string) Gauge {
 type MetricSettings struct {
 	Enabled         bool
 	IntervalSeconds int64
+}
+
+func ParseMetricSettings(settingsFile *ini.File) *MetricSettings {
+	var settings = &MetricSettings{
+		Enabled:         false,
+		IntervalSeconds: 10,
+	}
+
+	var section, err = settingsFile.GetSection("metrics")
+	if err != nil {
+		metricsLogger.Crit("Unable to find metrics config section", "error", err)
+		return nil
+	}
+
+	settings.Enabled = section.Key("enabled").MustBool(false)
+	settings.IntervalSeconds = section.Key("interval_seconds").MustInt64(10)
+
+	return settings
 }

@@ -45,9 +45,7 @@ func NewGraphiteSettings(settingsFile *ini.File) *GraphiteSettings {
 func Init(settings *GraphiteSettings, metricClients metrics.MetricFactories) {
 	metricsLogger.Info("setting up metrics using graphite")
 
-	//settings := readSettings(settingsFile)
-	initMetricVars(settings)
-	//metrics.RegisterMetricClient("graphite", &GraphiteClient{})
-	metricClients["graphite"] = &GraphiteClient{}
+	MetricStats = NewRegistry()
+	metricClients["graphite"] = &GraphiteMetricFactory{}
 	go instrumentationLoop(settings)
 }

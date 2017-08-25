@@ -2,6 +2,8 @@ package metrics
 
 import "github.com/grafana/grafana/pkg/log"
 
+var metricsLogger log.Logger = log.New("metrics")
+
 type MetricMeta struct {
 	tags        map[string]string
 	name        string

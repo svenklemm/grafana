@@ -1,5 +1,12 @@
 package metrics
 
+import (
+	"time"
+
+	"github.com/grafana/grafana/pkg/bus"
+	"github.com/grafana/grafana/pkg/models"
+)
+
 var (
 	M_Instance_Start                       Counter
 	M_Page_Status_200                      Counter
@@ -137,9 +144,41 @@ func Init(settings *MetricSettings, clients MetricFactories) {
 	M_StatTotal_Orgs = clients.RegGauge("stat_totals", "stat", "orgs")
 	M_StatTotal_Playlists = clients.RegGauge("stat_totals", "stat", "playlists")
 
-	initStats(settings)
+	go initStats(settings)
 }
 
 func initStats(settings *MetricSettings) {
+	if !settings.Enabled {
+		return
+	}
 
+	onceEveryDayTick := time.NewTicker(time.Hour * 24)
+	secondTicker := time.NewTicker(time.Second * time.Duration(settings.IntervalSeconds))
+
+	for {
+		select {
+		case <-onceEveryDayTick.C:
+			sendUsageStats()
+		case <-secondTicker.C:
+			updateTotalStats()
+		}
+	}
+}
+
+var metricPublishCounter int64 = 0
+
+func updateTotalStats() {
+	metricPublishCounter++
+	if metricPublishCounter%10 == 0 {
+		statsQuery := models.GetSystemStatsQuery{}
+		if err := bus.Dispatch(&statsQuery); err != nil {
+			metricsLogger.Error("Failed to get system stats", "error", err)
+			return
+		}
+
+		M_StatTotal_Dashboards.Update(statsQuery.Result.DashboardCount)
+		M_StatTotal_Users.Update(statsQuery.Result.UserCount)
+		M_StatTotal_Playlists.Update(statsQuery.Result.PlaylistCount)
+		M_StatTotal_Orgs.Update(statsQuery.Result.OrgCount)
+	}
 }
