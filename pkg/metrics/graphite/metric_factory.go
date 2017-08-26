@@ -6,7 +6,7 @@ type GraphiteMetricFactory struct {
 }
 
 func (gc *GraphiteMetricFactory) RegCounter(meta *metrics.MetricMeta) metrics.Counter {
-	return NewCounter2(meta)
+	return NewCounter(meta)
 }
 
 func (gc *GraphiteMetricFactory) RegGauge(meta *metrics.MetricMeta) metrics.Gauge {

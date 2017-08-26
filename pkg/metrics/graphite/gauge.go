@@ -19,19 +19,12 @@ type Gauge interface {
 }
 
 func NewGauge(meta *metrics.MetricMeta) Gauge {
-	if UseNilMetrics {
-		return NilGauge{}
-	}
-	return &StandardGauge{
+	gauge := &StandardGauge{
 		MetricMeta: meta,
 		value:      0,
 	}
-}
-
-func RegGauge(name string, tagStrings ...string) Gauge {
-	tr := NewGauge(metrics.NewMetricMeta(name, tagStrings))
-	MetricStats.Register(tr)
-	return tr
+	MetricStats.Register(gauge)
+	return gauge
 }
 
 // GaugeSnapshot is a read-only copy of another Gauge.

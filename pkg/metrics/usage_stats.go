@@ -34,14 +34,14 @@ func sendUsageStats() {
 		return
 	}
 
-	metrics["stats.dashboards.count"] = statsQuery.Result.DashboardCount
-	metrics["stats.users.count"] = statsQuery.Result.UserCount
-	metrics["stats.orgs.count"] = statsQuery.Result.OrgCount
-	metrics["stats.playlist.count"] = statsQuery.Result.PlaylistCount
+	metrics["stats.dashboards.count"] = statsQuery.Result.Dashboards
+	metrics["stats.users.count"] = statsQuery.Result.Users
+	metrics["stats.orgs.count"] = statsQuery.Result.Orgs
+	metrics["stats.playlist.count"] = statsQuery.Result.Playlists
 	metrics["stats.plugins.apps.count"] = len(plugins.Apps)
 	metrics["stats.plugins.panels.count"] = len(plugins.Panels)
 	metrics["stats.plugins.datasources.count"] = len(plugins.DataSources)
-	metrics["stats.alerts.count"] = statsQuery.Result.AlertCount
+	metrics["stats.alerts.count"] = statsQuery.Result.Alerts
 
 	dsStats := models.GetDataSourceStatsQuery{}
 	if err := bus.Dispatch(&dsStats); err != nil {

@@ -5,6 +5,9 @@ import (
 	ini "gopkg.in/ini.v1"
 )
 
+var MetricStats Registry
+
+
 type GraphiteSettings struct {
 	Enabled         bool
 	Address         string

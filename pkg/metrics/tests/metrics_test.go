@@ -20,9 +20,7 @@ func TestMetricCounters(t *testing.T) {
 			graphite.Init(&graphite.GraphiteSettings{
 				IntervalSeconds: 10,
 			}, mc)
-			p.Init(&p.PrometheusMetricSettings{
-				Enabled: true,
-			}, mc)
+			p.Init(mc)
 
 			metrics.Init(&metrics.MetricSettings{}, mc)
 			So(len(mc), ShouldEqual, 2)

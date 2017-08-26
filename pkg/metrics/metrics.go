@@ -131,7 +131,7 @@ func Init(settings *MetricSettings, clients MetricFactories) {
 	M_Aws_CloudWatch_GetMetricStatistics = clients.RegCounter("aws.cloudwatch.get_metric_statistics")
 	M_Aws_CloudWatch_ListMetrics = clients.RegCounter("aws.cloudwatch.list_metrics")
 
-	M_DB_DataSource_QueryById = RegCounter("db.datasource.query_by_id")
+	M_DB_DataSource_QueryById = clients.RegCounter("db.datasource.query_by_id")
 
 	// Timers
 	M_DataSource_ProxyReq_Timer = clients.RegTimer("api.dataproxy.request.all")
@@ -176,9 +176,9 @@ func updateTotalStats() {
 			return
 		}
 
-		M_StatTotal_Dashboards.Update(statsQuery.Result.DashboardCount)
-		M_StatTotal_Users.Update(statsQuery.Result.UserCount)
-		M_StatTotal_Playlists.Update(statsQuery.Result.PlaylistCount)
-		M_StatTotal_Orgs.Update(statsQuery.Result.OrgCount)
+		M_StatTotal_Dashboards.Update(statsQuery.Result.Dashboards)
+		M_StatTotal_Users.Update(statsQuery.Result.Users)
+		M_StatTotal_Playlists.Update(statsQuery.Result.Playlists)
+		M_StatTotal_Orgs.Update(statsQuery.Result.Orgs)
 	}
 }

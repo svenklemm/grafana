@@ -47,7 +47,7 @@ func CreateGraphitePublisher() (*GraphitePublisher, error) {
 	return publisher, nil
 }
 
-func (this *GraphitePublisher) Publish(metrics []metrics.Metric) {
+func (this *GraphitePublisher) Publish(metricsSnapshot []metrics.Metric) {
 	conn, err := net.DialTimeout(this.protocol, this.address, time.Second*5)
 
 	if err != nil {
@@ -58,13 +58,10 @@ func (this *GraphitePublisher) Publish(metrics []metrics.Metric) {
 	buf := bytes.NewBufferString("")
 	now := time.Now().Unix()
 
-	for _, m := range metrics {
+	for _, m := range metricsSnapshot {
 		metricName := this.prefix + m.Name() + m.StringifyTags()
+
 		switch metric := m.(type) {
-		case Counter:
-			this.addCount(buf, metricName+".count", metric.Count(), now)
-		case Gauge:
-			this.addCount(buf, metricName, metric.Value(), now)
 		case Timer:
 			percentiles := metric.Percentiles([]float64{0.25, 0.75, 0.90, 0.99})
 			this.addCount(buf, metricName+".count", metric.Count(), now)
@@ -76,6 +73,10 @@ func (this *GraphitePublisher) Publish(metrics []metrics.Metric) {
 			this.addFloat(buf, metricName+".p75", percentiles[1], now)
 			this.addFloat(buf, metricName+".p90", percentiles[2], now)
 			this.addFloat(buf, metricName+".p99", percentiles[3], now)
+		case Gauge:
+			this.addCount(buf, metricName, metric.Value(), now)
+		case GraphiteCounter:
+			this.addCount(buf, metricName+".count", metric.Count(), now)
 		}
 	}
 

@@ -48,14 +48,13 @@ func NewCustomTimer(meta *metrics.MetricMeta, h Histogram, m Meter) Timer {
 // NewTimer constructs a new StandardTimer using an exponentially-decaying
 // sample with the same reservoir size and alpha as UNIX load averages.
 func NewTimer(meta *metrics.MetricMeta) Timer {
-	if UseNilMetrics {
-		return NilTimer{}
-	}
-	return &StandardTimer{
+	timer := &StandardTimer{
 		MetricMeta: meta,
 		histogram:  NewHistogram(meta, NewExpDecaySample(1028, 0.015)),
 		meter:      NewMeter(meta),
 	}
+	MetricStats.Register(timer)
+	return timer
 }
 
 func RegTimer(name string, tagStrings ...string) Timer {

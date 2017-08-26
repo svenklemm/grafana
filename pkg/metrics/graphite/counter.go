@@ -6,23 +6,8 @@ import (
 	"github.com/grafana/grafana/pkg/metrics"
 )
 
-type GraphiteClient struct {
-}
-
-func (gc *GraphiteClient) RegCounter(meta *metrics.MetricMeta) metrics.Counter {
-	return NewCounter2(meta)
-}
-
-func (gc *GraphiteClient) RegGauge(meta *metrics.MetricMeta) metrics.Gauge {
-	return NewGauge(meta)
-}
-
-func (gc *GraphiteClient) RegTimer(meta *metrics.MetricMeta) metrics.Timer {
-	return NewTimer(meta)
-}
-
 // Counters hold an int64 value that can be incremented and decremented.
-type Counter interface {
+type GraphiteCounter interface {
 	metrics.Metric
 
 	Clear()
@@ -31,25 +16,11 @@ type Counter interface {
 	Inc(int64)
 }
 
-// NewCounter constructs a new StandardCounter.
-func NewCounter(meta *metrics.MetricMeta) Counter {
-	return &StandardCounter{
-		MetricMeta: meta,
-		count:      0,
-	}
-}
-
-func NewCounter2(meta *metrics.MetricMeta) Counter {
+func NewCounter(meta *metrics.MetricMeta) GraphiteCounter {
 	cr := &StandardCounter{
 		MetricMeta: meta,
 		count:      0,
 	}
-	MetricStats.Register(cr)
-	return cr
-}
-
-func RegCounter(name string, tagStrings ...string) Counter {
-	cr := NewCounter(metrics.NewMetricMeta(name, tagStrings))
 	MetricStats.Register(cr)
 	return cr
 }
