@@ -69,6 +69,59 @@ Example:
 
 Make sure the user does not get any unwanted privileges from the public role.
 
+## Query Editor
+
+{{< docs-imagebox img="/img/docs/v53/postgres_query_still.png" class="docs-image--no-shadow" animated-gif="/img/docs/v53/postgres_query.gif" >}}
+
+You find the PostgreSQL query editor in the metrics tab in Graph or Singlestat panel's edit mode. You enter edit mode by clicking the
+panel title, then edit.
+
+### Select table, time column and metric column (FROM)
+
+When you enter edit mode for the first time Grafana will try to prefill the query builder with suitable values.
+
+In the table field Grafana will suggest tables that are in the `search_path` of the database user. To select a table or view not in your `search_path`
+you can manually enter a fully qualified name like so: `public.metrics` in the FROM field.
+
+Time column is the name of the column holding your time values.
+
+Selecting a metric column is optional. The value of the metric column will be used as series name in Grafana.
+
+You may also enter arbitrary SQL expressions in the metric column field that evaluate to a text datatype like so: `hostname || ' ' || container_name`.
+
+### Columns, Window and Aggregation functions (SELECT)
+
+In the `SELECT` row you can specify what columns and functions you want to use.
+In the column field you may write arbitrary expressions instead of a column name like `column1 * column2 / column3`.
+If you use aggregate functions you need to group your resultset. The editor will automatically add a `GROUP BY time` if you add an aggregate function.
+
+The editor tries simplify and unify this part of the query. For example:<br>
+![](/img/docs/v53/postgres_select_editor.png)<br>
+
+The above will generate the following PostgreSQL `SELECT` clause:
+
+```sql
+...
+  avg(avg(tx_bytes)) OVER (ORDER BY $__timeGroup(time,$__interval) ROWS 5 PRECEDING) AS "tx_bytes"
+...
+```
+
+#### Select multiple columns
+Use the plus button and select Column to add another column.
+
+### Filter data (WHERE)
+To add a filter click the plus icon to the right of the `WHERE` condition. You can remove filters by clicking on
+the tag key and select `Remove`. A filter for the current selected timerange is automatically added to new queries.
+
+### Group By
+To group by time or any other columns click the plus icon at the end of the GROUP BY row. The suggestion dropdown will only show text columns of your currently selected table but you may manually enter any column.
+You can remove the group by by clicking on the item and then selecting `Remove`.
+
+### Text Editor Mode (RAW)
+You can switch to raw query mode by clicking hamburger icon and then selecting `Switch editor mode` or by clicking `Edit SQL` below the query.
+
+> If you use Raw Query be sure your query at minimum have `ORDER BY time` and a filter on the returned time range.
+
 ## Macros
 
 To simplify syntax and to allow for dynamic parts, like date range filters, the query can contain macros.
