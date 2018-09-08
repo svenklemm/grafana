@@ -80,7 +80,7 @@ panel title, then edit.
 
 When you enter edit mode for the first time or add a new query Grafana will try to prefill the query builder with the first table that has a timestamp column and a numeric column.
 
-In the table field Grafana will suggest tables that are in the `search_path` of the database user. To select a table or view not in your `search_path`
+In the FROM field Grafana will suggest tables that are in the `search_path` of the database user. To select a table or view not in your `search_path`
 you can manually enter a fully qualified name like `public.metrics` in the FROM field.
 
 Time column is the name of the column holding your time values.
@@ -102,7 +102,7 @@ The editor tries to simplify and unify this part of the query. For example:<br>
 The above will generate the following PostgreSQL `SELECT` clause:
 
 ```sql
-avg(avg(tx_bytes)) OVER (ORDER BY $__timeGroup(time,$__interval) ROWS 5 PRECEDING) AS "tx_bytes"
+avg(tx_bytes) OVER (ORDER BY "time" ROWS 5 PRECEDING) AS "tx_bytes"
 ```
 
 You may add further value columns by clicking the plus button and selecting `Column` from the menu. Multiple value columns will be plotted as separate series in the graph panel.
@@ -114,6 +114,8 @@ the filter and selecting `Remove`. A filter for the current selected timerange i
 ### Group By
 To group by time or any other columns click the plus icon at the end of the GROUP BY row. The suggestion dropdown will only show text columns of your currently selected table but you may manually enter any column.
 You can remove the group by by clicking on the item and then selecting `Remove`.
+
+If you add any grouping, all selected columns need to have an aggregate function applied. The query builder will automatically add aggregate functions to all columns without aggregate function when you add groupings.
 
 ### Text Editor Mode (RAW)
 You can switch to raw query mode by clicking hamburger icon and then selecting `Switch editor mode` or by clicking `Edit SQL` below the query.
