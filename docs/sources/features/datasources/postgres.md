@@ -117,6 +117,10 @@ You can remove the group by by clicking on the item and then selecting `Remove`.
 
 If you add any grouping, all selected columns need to have an aggregate function applied. The query builder will automatically add aggregate functions to all columns without aggregate function when you add groupings.
 
+#### Gap Filling
+
+When you group by time you can let grafana fill in missing values. The second argument to the time grouping controls which value Grafana will insert for missing items.
+
 ### Text Editor Mode (RAW)
 You can switch to raw query mode by clicking hamburger icon and then selecting `Switch editor mode` or by clicking `Edit SQL` below the query.
 
