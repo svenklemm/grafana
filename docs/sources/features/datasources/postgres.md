@@ -96,6 +96,7 @@ You may also enter arbitrary SQL expressions in the metric column field that eva
 In the `SELECT` row you can specify what columns and functions you want to use.
 In the column field you may write arbitrary expressions instead of a column name like `column1 * column2 / column3`.
 
+The available functions in the query editor depend on on the postgres version you selected when configuring the datasource.
 If you use aggregate functions you need to group your resultset. The editor will automatically add a `GROUP BY time` if you add an aggregate function.
 
 The editor tries to simplify and unify this part of the query. For example:<br>
