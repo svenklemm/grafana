@@ -86,6 +86,8 @@ you can manually enter a fully qualified name like `public.metrics` in the FROM 
 Time column is the name of the column holding your time values.
 
 Selecting a metric column is optional. The value of the metric column will be used as series name in Grafana.
+The metric column suggestions will only contain columns with a text datatype (char,varchar,text).
+If you want to a column with a different datatype as metric column you may enter with the column name with cast: `ip::text`.
 You may also enter arbitrary SQL expressions in the metric column field that evaluate to a text datatype like
 `hostname || ' ' || container_name`.
 
