@@ -81,7 +81,7 @@ panel title, then edit.
 When you enter edit mode for the first time or add a new query Grafana will try to prefill the query builder with the first table that has a timestamp column and a numeric column.
 
 In the FROM field Grafana will suggest tables that are in the `search_path` of the database user. To select a table or view not in your `search_path`
-you can manually enter a fully qualified name like `public.metrics` in the FROM field.
+you can manually enter a fully qualified name (schema.table) like `public.metrics`.
 
 Time column is the name of the column holding your time values.
 
