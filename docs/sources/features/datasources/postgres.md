@@ -16,7 +16,7 @@ Grafana ships with a built-in PostgreSQL data source plugin that allows you to q
 ## Adding the data source
 
 1. Open the side menu by clicking the Grafana icon in the top header.
-2. In the side menu under the `Dashboards` link you should find a link named `Data Sources`.
+2. In the side menu under the `Configuration` icon you should find a link named `Data Sources`.
 3. Click the `+ Add data source` button in the top header.
 4. Select *PostgreSQL* from the *Type* dropdown.
 
@@ -57,7 +57,7 @@ Identifier | Description
 The database user you specify when you add the data source should only be granted SELECT permissions on
 the specified database & tables you want to query. Grafana does not validate that the query is safe. The query
 could include any SQL statement. For example, statements like `DELETE FROM user;` and `DROP TABLE user;` would be
-executed. To protect against this we **Highly** recommmend you create a specific postgresql user with restricted permissions.
+executed. To protect against this we **highly** recommend you create a specific PostgreSQL user with restricted permissions.
 
 Example:
 
@@ -76,16 +76,17 @@ Make sure the user does not get any unwanted privileges from the public role.
 You find the PostgreSQL query editor in the metrics tab in Graph or Singlestat panel's edit mode. You enter edit mode by clicking the
 panel title, then edit.
 
+The query editor has a link named `Generated SQL` that shows up after a query as been executed, while in panel edit mode. Click on it and it will expand and show the raw interpolated SQL string that was executed.
+
 ### Select table, time column and metric column (FROM)
 
 When you enter edit mode for the first time or add a new query Grafana will try to prefill the query builder with the first table that has a timestamp column and a numeric column.
 
-In the FROM field Grafana will suggest tables that are in the `search_path` of the database user. To select a table or view not in your `search_path`
+In the FROM field, Grafana will suggest tables that are in the `search_path` of the database user. To select a table or view not in your `search_path`
 you can manually enter a fully qualified name (schema.table) like `public.metrics`.
 
-Time column is the name of the column holding your time values.
+The Time column field refers to the name of the column holding your time values. Selecting a value for the Metric column field is optional. If a value is selected, the Metric column field will be used as the series name. 
 
-Selecting a metric column is optional. The value of the metric column will be used as series name in Grafana.
 The metric column suggestions will only contain columns with a text datatype (char,varchar,text).
 If you want to a column with a different datatype as metric column you may enter with the column name with cast: `ip::text`.
 You may also enter arbitrary SQL expressions in the metric column field that evaluate to a text datatype like
@@ -96,7 +97,7 @@ You may also enter arbitrary SQL expressions in the metric column field that eva
 In the `SELECT` row you can specify what columns and functions you want to use.
 In the column field you may write arbitrary expressions instead of a column name like `column1 * column2 / column3`.
 
-The available functions in the query editor depend on on the postgres version you selected when configuring the datasource.
+The available functions in the query editor depend on the PostgreSQL version you selected when configuring the datasource.
 If you use aggregate functions you need to group your resultset. The editor will automatically add a `GROUP BY time` if you add an aggregate function.
 
 The editor tries to simplify and unify this part of the query. For example:<br>
@@ -116,22 +117,22 @@ the filter and selecting `Remove`. A filter for the current selected timerange i
 
 ### Group By
 To group by time or any other columns click the plus icon at the end of the GROUP BY row. The suggestion dropdown will only show text columns of your currently selected table but you may manually enter any column.
-You can remove the group by by clicking on the item and then selecting `Remove`.
+You can remove the group by clicking on the item and then selecting `Remove`.
 
-If you add any grouping, all selected columns need to have an aggregate function applied. The query builder will automatically add aggregate functions to all columns without aggregate function when you add groupings.
+If you add any grouping, all selected columns need to have an aggregate function applied. The query builder will automatically add aggregate functions to all columns without aggregate functions when you add groupings.
 
 #### Gap Filling
 
-When you group by time you can let grafana fill in missing values. The second argument to the time grouping controls which value Grafana will insert for missing items.
+Grafana can fill in missing values when you group by time. The time function accepts two arguments. The first argument is the time window that you would like to group by, and the second argument is the value you want Grafana to fill missing items with. 
 
 ### Text Editor Mode (RAW)
-You can switch to raw query mode by clicking hamburger icon and then selecting `Switch editor mode` or by clicking `Edit SQL` below the query.
+You can switch to the raw query editor mode by clicking the hamburger icon and selecting `Switch editor mode` or by clicking `Edit SQL` below the query.
 
-> If you use Raw Query be sure your query at minimum have `ORDER BY time` and a filter on the returned time range.
+> If you use the raw query editor, be sure your query at minimum has `ORDER BY time` and a filter on the returned time range.
 
 ## Macros
 
-To simplify syntax and to allow for dynamic parts, like date range filters, the query can contain macros.
+Macros can be used within a query to simplify syntax and allow for dynamic parts.
 
 Macro example | Description
 ------------ | -------------
@@ -140,20 +141,18 @@ Macro example | Description
 *$__timeFilter(dateColumn)* | Will be replaced by a time range filter using the specified column name. For example, *dateColumn BETWEEN '2017-04-21T05:01:17Z' AND '2017-04-21T05:06:17Z'*
 *$__timeFrom()* | Will be replaced by the start of the currently active time selection. For example, *'2017-04-21T05:01:17Z'*
 *$__timeTo()* | Will be replaced by the end of the currently active time selection. For example, *'2017-04-21T05:06:17Z'*
-*$__timeGroup(dateColumn,'5m')* | Will be replaced by an expression usable in GROUP BY clause. For example, *(extract(epoch from dateColumn)/300)::bigint*300*
-*$__timeGroup(dateColumn,'5m', 0)* | Same as above but with a fill parameter so missing points in that series will be added by grafana and 0 will be used as value.
+*$__timeGroup(dateColumn,'5m')* | Will be replaced by an expression usable in a GROUP BY clause. For example, *(extract(epoch from dateColumn)/300)::bigint*300*
+*$__timeGroup(dateColumn,'5m', 0)* | Same as above but with a fill parameter so missing points in that series will be added by Grafana and 0 will be used as the value.
 *$__timeGroup(dateColumn,'5m', NULL)* | Same as above but NULL will be used as value for missing points.
-*$__timeGroup(dateColumn,'5m', previous)* | Same as above but the previous value in that series will be used as fill value if no value has been seen yet NULL will be used (only available in Grafana 5.3+).
-*$__timeGroupAlias(dateColumn,'5m')* | Will be replaced identical to $__timeGroup but with an added column alias (only available in Grafana 5.3+).
-*$__unixEpochFilter(dateColumn)* | Will be replaced by a time range filter using the specified column name with times represented as unix timestamp. For example, *dateColumn >= 1494410783 AND dateColumn <= 1494497183*
+*$__timeGroup(dateColumn,'5m', previous)* | Same as above but the previous value in that series will be used as fill value. If no value has been seen yet, NULL will be used (only available in Grafana 5.3+).
+*$__timeGroupAlias(dateColumn,'5m')* | Will be replaced with an expression identical to $__timeGroup, but with an added column alias (only available in Grafana 5.3+).
+*$__unixEpochFilter(dateColumn)* | Will be replaced by a time range filter using the specified column name with times represented as unix timestamps. For example, *dateColumn >= 1494410783 AND dateColumn <= 1494497183*
 *$__unixEpochFrom()* | Will be replaced by the start of the currently active time selection as unix timestamp. For example, *1494410783*
 *$__unixEpochTo()* | Will be replaced by the end of the currently active time selection as unix timestamp. For example, *1494497183*
-*$__unixEpochGroup(dateColumn,'5m', [fillmode])* | Same as $__timeGroup but for times stored as unix timestamp (only available in Grafana 5.3+).
-*$__unixEpochGroupAlias(dateColumn,'5m', [fillmode])* | Same as above but also adds a column alias (only available in Grafana 5.3+).
+*$__unixEpochGroup(dateColumn,'5m', [fillmode])* | Same as $__timeGroup, but for times stored as unix timestamp (only available in Grafana 5.3+).
+*$__unixEpochGroupAlias(dateColumn,'5m', [fillmode])* | Same as above, but also adds a column alias (only available in Grafana 5.3+).
 
 We plan to add many more macros. If you have suggestions for what macros you would like to see, please [open an issue](https://github.com/grafana/grafana) in our GitHub repo.
-
-The query editor has a link named `Generated SQL` that shows up after a query as been executed, while in panel edit mode. Click on it and it will expand and show the raw interpolated SQL string that was executed.
 
 ## Table queries
 
@@ -184,8 +183,8 @@ The resulting table panel:
 
 ## Time series queries
 
-If you set `Format as` to `Time series`, for use in Graph panel for example, then the query must return a column named `time` that returns either a sql datetime or any numeric datatype representing unix epoch.
-Any column except `time` and `metric` is treated as a value column.
+If you set `Format as` to `Time series`, for use in Graph panel for example, then the query must return a column named `time` that returns either a SQL datetime or any numeric datatype representing unix epoch.
+Any column except `time` and `metric` are treated as a value column.
 You may return a column named `metric` that is used as metric name for the value column.
 If you return multiple value columns and a column named `metric` then this column is used as prefix for the series name (only available in Grafana 5.3+).
 
@@ -266,7 +265,7 @@ Another option is a query that can create a key/value variable. The query should
 SELECT hostname AS __text, id AS __value FROM host
 ```
 
-You can also create nested variables. For example if you had another variable named `region`. Then you could have
+You can also create nested variables. Using a variable named `region`, you could have
 the hosts variable only show hosts from the current selected region with a query like this (if `region` is a multi-value variable then use the `IN` comparison operator rather than `=` to match against multiple values):
 
 ```sql
@@ -275,7 +274,7 @@ SELECT hostname FROM host  WHERE region IN($region)
 
 ### Using Variables in Queries
 
-From Grafana 4.3.0 to 4.6.0, template variables are always quoted automatically so if it is a string value do not wrap them in quotes in where clauses.
+From Grafana 4.3.0 to 4.6.0, template variables are always quoted automatically. If your template variables are strings, do not wrap them in quotes in where clauses. 
 
 From Grafana 4.7.0, template variable values are only quoted when the template variable is a `multi-value`.
 
@@ -307,7 +306,7 @@ ORDER BY atimestamp ASC
 
 #### Disabling Quoting for Multi-value Variables
 
-Grafana automatically creates a quoted, comma-separated string for multi-value variables. For example: if `server01` and `server02` are selected then it will be formatted as: `'server01', 'server02'`. Do disable quoting, use the csv formatting option for variables:
+Grafana automatically creates a quoted, comma-separated string for multi-value variables. For example: if `server01` and `server02` are selected then it will be formatted as: `'server01', 'server02'`. To disable quoting, use the csv formatting option for variables:
 
 `${servers:csv}`
 
@@ -351,7 +350,7 @@ tags | Optional field name to use for event tags as a comma separated string.
 
 ## Alerting
 
-Time series queries should work in alerting conditions. Table formatted queries is not yet supported in alert rule
+Time series queries should work in alerting conditions. Table formatted queries are not yet supported in alert rule
 conditions.
 
 ## Configure the Datasource with Provisioning
